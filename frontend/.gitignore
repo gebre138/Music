@@ -1,0 +1,15 @@
+# Node modules
+node_modules/
+
+# React build folder
+client/build/
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
