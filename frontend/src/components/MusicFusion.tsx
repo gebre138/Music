@@ -20,10 +20,12 @@ const MusicFusion: React.FC<Props> = ({ tracks }) => {
     `${track.sound_id} - ${track.title} - ${track.performer}`;
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Music Fusion</h2>
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-6">Music Fusion</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
+      {/* Track Selection */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+        {/* Music 1 */}
         <div>
           <label className="block mb-2 font-semibold">Select Music 1</label>
           <select
@@ -32,6 +34,7 @@ const MusicFusion: React.FC<Props> = ({ tracks }) => {
             onChange={(e) => {
               const track = tracks.find((t) => t.sound_id === e.target.value);
               setMusic1(track || null);
+              // Avoid duplicate selection
               if (music2?.sound_id === e.target.value) setMusic2(null);
             }}
           >
@@ -44,6 +47,7 @@ const MusicFusion: React.FC<Props> = ({ tracks }) => {
           </select>
         </div>
 
+        {/* Music 2 */}
         <div>
           <label className="block mb-2 font-semibold">Select Music 2</label>
           <select
@@ -67,16 +71,17 @@ const MusicFusion: React.FC<Props> = ({ tracks }) => {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Selected Tracks Preview */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         {[music1, music2].map(
           (music, idx) =>
             music && (
-              <div key={idx} className="p-3 border rounded">
-                <h4 className="font-bold">
+              <div key={idx} className="p-3 border rounded shadow-sm">
+                <h4 className="font-bold mb-2">
                   {music.sound_id} - {music.title}
                 </h4>
                 {music.sound_track_url && (
-                  <audio controls className="w-full mt-2">
+                  <audio controls className="w-full">
                     <source src={music.sound_track_url} type="audio/mpeg" />
                   </audio>
                 )}
@@ -85,11 +90,12 @@ const MusicFusion: React.FC<Props> = ({ tracks }) => {
         )}
       </div>
 
+      {/* Fuse Button */}
       {music1 && music2 && (
-        <div className="mt-4 flex justify-center">
+        <div className="flex justify-center">
           <button
             onClick={fuseTracks}
-            className="bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold"
+            className="bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-pink-700 active:bg-pink-800 transition"
           >
             Fuse Music
           </button>

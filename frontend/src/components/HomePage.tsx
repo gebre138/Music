@@ -13,12 +13,16 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // 🔥 Get API URL from environment variable
+  const API_BASE = process.env.REACT_APP_API_URL;
+
   const fetchTracks = async () => {
     setLoading(true);
     try {
-      const res = await axios.get<Track[]>("http://localhost:3001/api/tracks");
+      const res = await axios.get<Track[]>(`${API_BASE}/api/tracks`);
       setTracks(res.data || []);
-    } catch {
+    } catch (error) {
+      console.error("Error fetching tracks:", error);
       setTracks([]);
     } finally {
       setLoading(false);
@@ -56,8 +60,8 @@ const HomePage: React.FC = () => {
             onTrackAdded={() => { fetchTracks(); handleSetActiveView("home"); }}
             onTrackUpdated={() => { fetchTracks(); setEditingTrack(null); handleSetActiveView("home"); }}
             onCancelEdit={() => {
-                setEditingTrack(null);
-                setActiveView("home");   // 👈 go back to home
+              setEditingTrack(null);
+              setActiveView("home");
             }}
           />
         );
@@ -70,6 +74,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 flex">
+      {/* Sidebar */}
       <div className={`relative flex-shrink-0 h-screen bg-white border-r p-4 shadow-xl transition-all duration-300 ${isSidebarOpen ? "w-64" : "w-20"}`}>
         <div className="flex items-center mb-6 relative justify-center">
           {isSidebarOpen && <img src="Wits_MIND.jpg" alt="Logo" className="w-36 h-auto object-contain" />}
@@ -79,8 +84,15 @@ const HomePage: React.FC = () => {
             <span className="w-full h-0.5 bg-gray-600"></span>
           </button>
         </div>
+
         {menuItems.map((item) => (
-          <div key={item.name} onClick={() => handleSetActiveView(item.key as any)} className={`flex items-center p-2 rounded-lg cursor-pointer mb-2 ${activeView === item.key ? "bg-pink-100 text-pink-600 font-semibold" : "text-gray-600 hover:bg-gray-100"}`}>
+          <div
+            key={item.name}
+            onClick={() => handleSetActiveView(item.key as any)}
+            className={`flex items-center p-2 rounded-lg cursor-pointer mb-2 ${
+              activeView === item.key ? "bg-pink-100 text-pink-600 font-semibold" : "text-gray-600 hover:bg-gray-100"
+            }`}
+          >
             <div className={`flex-shrink-0 flex justify-center items-center transition-all duration-300 ${isSidebarOpen ? "w-8 h-8" : "w-6 h-6"}`}>
               <img src={item.icon} alt={item.name} className="w-full h-full object-contain" />
             </div>
@@ -88,11 +100,19 @@ const HomePage: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-y-auto">
         <div className="flex justify-between items-center bg-white p-3 shadow-lg border m-4 rounded-lg">
           <span className="text-xl font-bold text-gray-800">AI and African Music</span>
           <div className="relative flex items-center w-full max-w-xl ml-4">
-            <input type="text" placeholder="Search sounds..." className="w-full p-2 border border-gray-300 rounded-l-lg" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <input
+              type="text"
+              placeholder="Search sounds..."
+              className="w-full p-2 border border-gray-300 rounded-l-lg"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
             <button className="bg-pink-600 text-white p-2.5 rounded-r-lg">Search</button>
           </div>
           <div className="flex items-center space-x-4">
@@ -100,6 +120,7 @@ const HomePage: React.FC = () => {
             <button className="bg-pink-500 text-white text-sm px-4 py-2 rounded-full">Log Out</button>
           </div>
         </div>
+
         <div className="p-4 lg:p-6">{renderContent()}</div>
       </div>
     </div>

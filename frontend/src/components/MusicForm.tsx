@@ -21,6 +21,9 @@ const REQUIRED_COLUMNS = [
   "context",
 ];
 
+// Ensure the API_URL comes from environment
+const API_URL = import.meta.env.VITE_API_URL as string;
+
 const MusicForm: React.FC<MusicFormProps> = ({
   onTrackAdded,
   onTrackUpdated,
@@ -82,14 +85,14 @@ const MusicForm: React.FC<MusicFormProps> = ({
 
       if (editingTrack) {
         await axios.put(
-          `http://localhost:3001/api/tracks/${editingTrack.sound_id}`,
+          `${API_URL}/api/tracks/${editingTrack.sound_id}`,
           apiFormData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
         showPopup("Track updated successfully.");
         onTrackUpdated?.();
       } else {
-        await axios.post("http://localhost:3001/api/tracks", apiFormData, {
+        await axios.post(`${API_URL}/api/tracks`, apiFormData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         showPopup("Track uploaded successfully.");
@@ -137,10 +140,9 @@ const MusicForm: React.FC<MusicFormProps> = ({
       const data = new Uint8Array(evt.target?.result as ArrayBuffer);
       const wb = XLSX.read(data, { type: "array" });
 
-      const json = XLSX.utils.sheet_to_json(
-        wb.Sheets[wb.SheetNames[0]],
-        { defval: "" }
-      );
+      const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {
+        defval: "",
+      });
 
       setExcelData(
         json.map((row: any) => ({
@@ -185,11 +187,9 @@ const MusicForm: React.FC<MusicFormProps> = ({
     });
 
     try {
-      const res = await axios.post(
-        "http://localhost:3001/api/tracks/batch",
-        batchForm,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      const res = await axios.post(`${API_URL}/api/tracks/batch`, batchForm, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       showPopup(`${res.data.inserted} tracks uploaded.`);
       setExcelData([]);
@@ -206,7 +206,6 @@ const MusicForm: React.FC<MusicFormProps> = ({
 
   return (
     <div className="w-full relative">
-
       {/* Popup */}
       {popupMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -248,7 +247,6 @@ const MusicForm: React.FC<MusicFormProps> = ({
       </div>
 
       <div className="w-full bg-white p-5 rounded-b-lg shadow-md">
-
         {/* ------------------ Excel Mode ------------------ */}
         {excelMode ? (
           <>
@@ -265,7 +263,9 @@ const MusicForm: React.FC<MusicFormProps> = ({
                   <thead>
                     <tr>
                       {Object.keys(excelData[0]).map((k) => (
-                        <th key={k} className="border p-1 bg-gray-200">{k}</th>
+                        <th key={k} className="border p-1 bg-gray-200">
+                          {k}
+                        </th>
                       ))}
                       <th className="border p-1 bg-gray-200">Audio*</th>
                       <th className="border p-1 bg-gray-200">Album*</th>
@@ -276,7 +276,9 @@ const MusicForm: React.FC<MusicFormProps> = ({
                     {excelData.map((row, i) => (
                       <tr key={i}>
                         {Object.values(row).map((v, j) => (
-                          <td key={j} className="border p-1">{String(v)}</td>
+                          <td key={j} className="border p-1">
+                            {String(v)}
+                          </td>
                         ))}
 
                         <td className="border p-1">
@@ -318,7 +320,6 @@ const MusicForm: React.FC<MusicFormProps> = ({
           /* ------------------ FORM MODE ------------------ */
           <form className="space-y-3" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
               {FORM_FIELDS.map((f) =>
                 f.type === "file" ? (
                   <div key={f.name} className="space-y-1">
