@@ -1,0 +1,56 @@
+
+services:
+  # 1. MongoDB Database
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    # Persist data outside the container
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+  # 2. Backend Service
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: song-backend
+    # Host port 3000 -> Container port 3000 (for direct testing/debugging)
+    ports:
+      - "3000:3000"
+    # Load environment variables (like PORT, etc.)
+    env_file:
+      - ./backend/.env
+    # Override MONGO_URI to use the service name 'mongo'
+    environment:
+      MONGO_URI: mongodb://mongo:27017/song_db 
+    restart: always
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  # 3. Frontend Service
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: song-frontend
+    # Host port 80 -> Container port 80 (where Nginx runs)
+    ports:
+      - "80:80"
+    # The frontend needs the backend to be running to proxy API calls
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+# Define the network for internal communication
+networks:
+  app-network:
+    driver: bridge
+
+# Define the volume for persistent MongoDB data
+volumes:
+  mongo-data:
